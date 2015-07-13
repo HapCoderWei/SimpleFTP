@@ -6,6 +6,7 @@
 #include <netinet/ip.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <arpa/inet.h>
 
 #include "command.h"
 

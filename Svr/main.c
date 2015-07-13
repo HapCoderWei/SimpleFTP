@@ -6,11 +6,9 @@ int main(int argc, char *argv[])
     struct sockaddr_in s_addr, c_addr;
     int socket_fd, client_fd;
     int s_addr_len;
-    FILE* fd;
 
     pthread_t pt;
     int res;
-    void *retval;
     /* create a socket */
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -23,13 +21,22 @@ int main(int argc, char *argv[])
     bind(socket_fd, (struct sockaddr *)&s_addr, s_addr_len);
     listen(socket_fd, 10);          /* max request counts is 10 */
 
-    while (1) {
-        client_fd = accept(socket_fd, (struct sockaddr *)&c_addr, &s_addr_len);
-        printf("one client connected.\n");
+    for(;;) {
+        client_fd = accept(socket_fd,
+            (struct sockaddr *)&c_addr,
+            &s_addr_len);
+        if(client_fd < 0) {
+            perror("Accept error");
+            continue;
+        }
+        printf("Accept connection from %s: %d\n",
+            inet_ntoa(c_addr.sin_addr), ntohs(c_addr.sin_port));
+
         /* Create a thread to do the request */
         res = pthread_create(&pt, NULL, th_func, (void *)client_fd);
         if(res != 0) {
-            perror("Error in create therad ");
+            perror("Error in create thread");
+            close(client_fd);
             continue;
         }
         /* fd = fopen(buf, "r+"); */
@@ -48,7 +55,7 @@ void *th_func(void *arg)
     char command_arg2[MAX_LENGTH] = "";
 
     pthread_detach(pthread_self()); /* pthread_join() */
-    while(1) {
+    for(;;) {
         recv(client_fd, command_buf, sizeof(command_buf), 0);
         command_buf[sizeof(command_buf)-1] = '\0';
 
@@ -72,10 +79,11 @@ void *th_func(void *arg)
         }
         else if(strncmp(command_buf, "BYE", 3) == 0) {
             /* BYE BYE */
-            //do_get(command_arg1, command_arg2, client_fd);
             close(client_fd);
             pthread_exit(NULL);
-            return ;
         }
+        bzero(command_buf,  sizeof(command_buf ));
+        bzero(command_arg1, sizeof(command_arg1));
+        bzero(command_arg2, sizeof(command_arg2));
     }
 }
