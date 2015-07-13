@@ -25,13 +25,12 @@ int main(int argc, const char *argv[])
         }
         */
 
-        command.name = "connect";
-        command.argv[0] = "";
+        split(&command, command_buffer);
 
-        if(sock_fd != -1){
+        if(sock_fd == -1){
             do_connect(command.argv[0], &sock_fd);
         }else{
-            printf("You have been connected to server");
+            printf("You have been connected to server\n");
         }
 
         memset(command_buffer, '\0', COMMAND_LINE);
