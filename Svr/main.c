@@ -14,12 +14,10 @@ int main(int argc, char *argv[])
     /* create a socket */
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-    /* set struct s_addr */
     s_addr_len = sizeof(s_addr);
     bzero(&s_addr, s_addr_len);
-
     s_addr.sin_family = AF_INET;
-    s_addr.sin_port = htons(8000);
+    s_addr.sin_port = htons(PORT);
     s_addr.sin_addr.s_addr = INADDR_ANY;
 
     bind(socket_fd, (struct sockaddr *)&s_addr, s_addr_len);
@@ -30,6 +28,10 @@ int main(int argc, char *argv[])
         printf("one client connected.\n");
         /* Create a thread to do the request */
         res = pthread_create(&pt, NULL, th_func, (void *)client_fd);
+        if(res != 0) {
+            perror("Error in create therad ");
+            continue;
+        }
         /* fd = fopen(buf, "r+"); */
         /* while(fread(sendbuf, sizeof(sendbuf[0]), sizeof(sendbuf), fd)) { */
         /*     send(client_fd, sendbuf, strlen(sendbuf), 0); */
@@ -40,11 +42,12 @@ int main(int argc, char *argv[])
 }
 void *th_func(void *arg)
 {
-    int client_fd = *((int *)arg);
-    char command_buf[10] = "";
-    char command_arg1[50] = "";
-    char command_arg2[50] = "";
+    int client_fd = (int)arg;
+    char command_buf[MAX_LENGTH] = "";
+    char command_arg1[MAX_LENGTH] = "";
+    char command_arg2[MAX_LENGTH] = "";
 
+    pthread_detach(pthread_self()); /* pthread_join() */
     while(1) {
         recv(client_fd, command_buf, sizeof(command_buf), 0);
         command_buf[sizeof(command_buf)-1] = '\0';
@@ -71,6 +74,7 @@ void *th_func(void *arg)
             /* BYE BYE */
             //do_get(command_arg1, command_arg2, client_fd);
             close(client_fd);
+            pthread_exit(NULL);
             return ;
         }
     }
