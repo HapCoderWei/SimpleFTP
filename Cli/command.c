@@ -23,8 +23,45 @@ int do_connect(char *ip, int *sock_fd){
 
     if(result == -1){
         perror("connect: ");
+        *sock_fd = -1;
         return -1;
     }
 
+    return 0;
+}
+
+int do_get(const char *src, const char *dst, int sock_fd){
+
+    return 0;
+}
+
+int do_put(const char *src, const char *dst, int sock_fd){
+
+    return 0;
+}
+
+int do_cd(char *path){
+
+    return 0;
+}
+
+int do_ls(char *path){
+
+    return 0;
+}
+
+int do_serv_cd(char *path, int sock_fd){
+
+    return 0;
+}
+
+int do_serv_ls(char *path, int sock_fd){
+
+    return 0;
+}
+
+int bye(int sock_fd){
+
+    exit(1);
     return 0;
 }
