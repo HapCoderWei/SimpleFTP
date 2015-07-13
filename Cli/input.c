@@ -46,3 +46,38 @@ int split(command_line *command, char *command_buffer){
 
     return 0;
 }
+
+int get_dst_filename(const char *src, const char *dst, char *filename){
+    if(is_dir(dst)){
+        char src_cpy[MAX_LENGTH];
+        strcpy(src_cpy, src);
+        char *token = strtok(src_cpy, " ");
+        char filename_tmp[MAX_LENGTH];
+        while(token){
+            strcpy(filename_tmp, token);
+            token = strtok(NULL, " ");
+        }
+
+        strcpy(filename, dst);
+        int filename_len = strlen(filename);
+        if(filename[filename_len - 1] != '/'){
+            filename[filename_len] = '/';
+            filename[filename_len + 1] = '\0';
+            strcat(filename, filename_tmp);
+        }
+
+    }else{
+        strcpy(filename, dst);
+    }
+    return 0;
+}
+
+int is_dir(const char *dst){
+    struct stat dst_path_stat;
+    stat(dst, &dst_path_stat);
+    if((dst_path_stat.st_mode & S_IFMT) == S_IFDIR){
+        return 1;
+    }else{
+        return 0;
+    }
+}

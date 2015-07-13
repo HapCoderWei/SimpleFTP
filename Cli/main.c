@@ -15,7 +15,6 @@ int main(int argc, const char *argv[])
         command_buffer[command_len - 1] = '\0';
 
         if(split(&command, command_buffer) == 0){
-            puts(command.name);
             if(strcmp(command.name, "connect") == 0){
                 if(sock_fd == -1){
                     do_connect(command.argv[0], &sock_fd);

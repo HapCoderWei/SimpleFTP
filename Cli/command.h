@@ -1,5 +1,4 @@
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <arpa/inet.h>
 
 int do_connect(char *ip, int *sock_fd);
