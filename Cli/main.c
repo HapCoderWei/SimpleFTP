@@ -3,22 +3,20 @@
 
 int main(int argc, const char *argv[])
 {
-    char input_buffer[100];
+    char command_buffer[COMMAND_LINE];
     command_line command;
-    int sock_fd;
+    int sock_fd = -1;
 
-
-
-    memset(input_buffer, '\0', 100);
+    memset(command_buffer, '\0', COMMAND_LINE);
     while(1){
         printf("Input command: ");
-        fgets(input_buffer, 100, stdin);
-        size_t command_len = strlen(input_buffer);
-        input_buffer[command_len - 1] = '\0';
+        fgets(command_buffer, COMMAND_LINE, stdin);
+        size_t command_len = strlen(command_buffer);
+        command_buffer[command_len - 1] = '\0';
 
         /*
          * Command parse
-        if(split(&command, input_buffer)){
+        if(split(&command, command_buffer)){
             switch (parse_command(command)){
 
             }
@@ -27,9 +25,16 @@ int main(int argc, const char *argv[])
         }
         */
 
-        do_connect("127.0.0.1", &sock_fd);
+        command.name = "connect";
+        command.argv[0] = "";
 
-        memset(input_buffer, '\0', 100);
+        if(sock_fd != -1){
+            do_connect(command.argv[0], &sock_fd);
+        }else{
+            printf("You have been connected to server");
+        }
+
+        memset(command_buffer, '\0', COMMAND_LINE);
     }
     return 0;
 }

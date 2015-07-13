@@ -13,5 +13,5 @@ typedef struct{
     char *argv[MAX_ARG];
 }command_line;
 
-int split(command_line *command, char line[]);
+int split(command_line *command, char command_buffer[]);
 int parse_command(command_line command);
