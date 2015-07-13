@@ -39,10 +39,6 @@ int main(int argc, char *argv[])
             close(client_fd);
             continue;
         }
-        /* fd = fopen(buf, "r+"); */
-        /* while(fread(sendbuf, sizeof(sendbuf[0]), sizeof(sendbuf), fd)) { */
-        /*     send(client_fd, sendbuf, strlen(sendbuf), 0); */
-        /* } */
     }
     /* close(socket_fd); */
     return 0;
@@ -50,6 +46,7 @@ int main(int argc, char *argv[])
 void *th_func(void *arg)
 {
     int client_fd = (int)arg;
+    char ack_msg[] = "ACK";
     char command_buf[MAX_LENGTH] = "";
     char command_arg1[MAX_LENGTH] = "";
     char command_arg2[MAX_LENGTH] = "";
@@ -60,14 +57,15 @@ void *th_func(void *arg)
         command_buf[sizeof(command_buf)-1] = '\0';
 
         if(strncmp(command_buf, "GET", 3) == 0) {
+            send(client_fd, ack_msg, strlen(ack_msg), 0);
+            /* server only need to know source file path */
             recv(client_fd, command_arg1, sizeof(command_arg1), 0);
-            recv(client_fd, command_arg2, sizeof(command_arg1), 0);
-            do_get(command_arg1, command_arg2, client_fd);
+            do_put(command_arg1, command_arg2, client_fd);
         }
         else if(strncmp(command_buf, "PUT", 3) == 0) {
             recv(client_fd, command_arg1, sizeof(command_arg1), 0);
             recv(client_fd, command_arg2, sizeof(command_arg1), 0);
-            do_put(command_arg1, command_arg2, client_fd);
+            do_get(command_arg1, command_arg2, client_fd);
         }
         else if(strncmp(command_buf, "CD", 3) == 0) {
             recv(client_fd, command_arg1, sizeof(command_arg1), 0);

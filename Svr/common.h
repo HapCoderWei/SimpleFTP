@@ -1,7 +1,9 @@
+#if 0
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <string.h>
+#endif
 #include <unistd.h>
 #include <netinet/ip.h>
 #include <netinet/in.h>
