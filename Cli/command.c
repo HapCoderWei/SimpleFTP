@@ -36,23 +36,28 @@ int do_get(const char *src, const char *dst, int sock_fd){
         return -1;
     }
 
-    struct stat dst_path_stat;
     char filename[MAX_LENGTH];
     int dest_fd;
 
-    int request_length = strlen(src) + 3 + 1;
-    char *request_buffer = (char *)malloc(request_length);
+    int request_length;
+    char *request_buffer;
 
     char recive_buffer[MAX_LENGTH];
+    int recive_length;
+    struct timeval timeout = {1,0};
+
+    request_length = strlen(src) + 3 + 1;
+    request_buffer = (char *)malloc(request_length);
+    strcpy(request_buffer, "GET");//Create request_buffer
+    strcat(request_buffer, src);
+    send(sock_fd, request_buffer, request_length, 0); //Send GET + Path, then free request_buffer
+    free(request_buffer);
 
     memset(recive_buffer, 0, MAX_LENGTH);
-
-    strcpy(request_buffer, "GET");
-    strcat(request_buffer, src);
-
-    send(sock_fd, request_buffer, request_length, 0);
     recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
+
     if(strcmp(recive_buffer, "ACK") == 0){
+        memset(recive_buffer, 0, MAX_LENGTH);
         get_dst_filename(src, dst, filename);
 
         dest_fd = open(filename, O_RDWR | O_CREAT, S_IRWXU);
@@ -60,28 +65,72 @@ int do_get(const char *src, const char *dst, int sock_fd){
             perror("Open");
             return -1;
         }
+        setsockopt(sock_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
         send(sock_fd, "RDY", 3, 0);
-        int result;
-        while((result = recv(sock_fd, recive_buffer, MAX_LENGTH, 0)) > 0){
-            if(write(dest_fd, recive_buffer, result) < 0){
+
+
+        while((recive_length = recv(sock_fd, recive_buffer, MAX_LENGTH, 0)) > 0){
+            if(write(dest_fd, recive_buffer, recive_length) < 0){
                 return -1;
-            }
-            if(result < MAX_LENGTH){
-                break;
             }
             memset(recive_buffer, 0, MAX_LENGTH);
         }
 
+        close(dest_fd);
     }else{
-
+        printf("No such file on server\n");
     }
-    close(dest_fd);
 
     return 0;
 }
 
 int do_put(const char *src, const char *dst, int sock_fd){
+    int request_length;
+    char *request_buffer;
 
+    char send_buffer[MAX_LENGTH];
+    char recive_buffer[MAX_LENGTH];
+
+    int file_to_put_fd = -1;
+    int send_length;
+
+    request_length = strlen(dst) + 3 + 1;
+    request_buffer = (char *)malloc(request_length);
+    strcpy(request_buffer, "PUT");//Create request_buffer
+    strcat(request_buffer, dst);
+    send(sock_fd, request_buffer, request_length, 0); //Send GET + Path, then free request_buffer
+    free(request_buffer);
+
+    memset(recive_buffer, 0, MAX_LENGTH);
+    memset(send_buffer, 0, MAX_LENGTH);
+    recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
+
+    if(strcmp(recive_buffer, "ACK") == 0){
+        file_to_put_fd = open(src, O_RDONLY);
+        if(file_to_put_fd < 0){
+            perror("Open");
+            send(sock_fd, "ERR", 5, 0);
+            return -1;
+        }
+
+        send(sock_fd, "RDY", 3, 0);
+
+        memset(recive_buffer, 0, MAX_LENGTH);
+        recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
+
+        if(strcmp(recive_buffer, "RDY") == 0){
+            while((send_length = read(file_to_put_fd, send_buffer, sizeof(recive_buffer))) > 0){
+                send(sock_fd, send_buffer, send_length, 0);
+            }
+        }else{
+            printf("Create file failure on server\n");
+        }
+
+    }else{
+        printf("Send message failure\n");
+    }
+
+    close(file_to_put_fd);
     return 0;
 }
 

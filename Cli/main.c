@@ -9,10 +9,10 @@ int main(int argc, const char *argv[])
 
     while(1){
         printf("Input command: ");
-        memset(command_buffer, '\0', COMMAND_LINE);
+        memset(command_buffer, '\0', COMMAND_LINE); //Empty command buffer
+        fflush(stdin);
         fgets(command_buffer, COMMAND_LINE, stdin);
-        size_t command_len = strlen(command_buffer);
-        command_buffer[command_len - 1] = '\0';
+        command_buffer[strlen(command_buffer) - 1] = '\0';
 
         if(split(&command, command_buffer) == 0){
             if(strcmp(command.name, "connect") == 0){
@@ -68,13 +68,15 @@ int main(int argc, const char *argv[])
                 printf("Command Invalid\n");
             }
 
-            if(command.name){
+            if(command.name){ // Empty and free pointer in command struct
                 free(command.name);
+                command.name = NULL;
             }
             for(int i = 0; i < MAX_ARG; ++i){
 
                 if(command.argv[i]){
                     free(command.argv[i]);
+                    command.argv[i] = NULL;
                 }
             }
        }
