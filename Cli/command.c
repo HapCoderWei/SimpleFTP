@@ -135,6 +135,21 @@ int do_put(const char *src, const char *dst, int sock_fd){
 }
 
 int do_cd(char *path){
+    if(path == NULL){
+        char path_tmp[2] = ".";
+        path = (char *)malloc(2);
+        strcpy(path, path_tmp);
+    }
+
+    if(is_dir(path)){
+        if(chdir(path) == 0){
+
+        }else{
+            perror("Change Directory");
+        }
+    }else{
+        printf("No such Directory\n");
+    }
     return 0;
 }
 
@@ -170,11 +185,69 @@ void do_show(){
 }
 
 int do_serv_cd(char *path, int sock_fd){
+    if(path == NULL){
+        char path_tmp[2] = ".";
+        path = (char *)malloc(2);
+        strcpy(path, path_tmp);
+    }
+
+    char recive_buffer[MAX_LENGTH];
+    char request_buffer[MAX_LENGTH];
+
+    memset(recive_buffer, 0, MAX_LENGTH);
+    memset(request_buffer, 0, MAX_LENGTH);
+
+    strcpy(request_buffer, "CD");
+    strcat(request_buffer, path);
+
+    send(sock_fd, request_buffer, strlen(request_buffer), 0);
+
+    recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
+
+    if(strcmp(recive_buffer, "ACK") == 0){
+        printf("%s\n", path);
+    }else{
+        printf("No such directory on server.\n");
+    }
 
     return 0;
 }
 
 int do_serv_ls(char *path, int sock_fd){
+    if(path == NULL){
+        char path_tmp[2] = ".";
+        path = (char *)malloc(2);
+        strcpy(path, path_tmp);
+    }
+
+    char recive_buffer[MAX_LENGTH];
+    char request_buffer[MAX_LENGTH];
+    struct timeval timeout = {1,0};
+    int recive_length;
+
+    memset(recive_buffer, 0, MAX_LENGTH);
+    memset(request_buffer, 0, MAX_LENGTH);
+
+    strcpy(request_buffer, "LS");
+    strcat(request_buffer, path);
+
+    send(sock_fd, request_buffer, strlen(request_buffer), 0);
+
+    recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
+
+    if(strcmp(recive_buffer, "ACK") == 0){
+        memset(recive_buffer, 0, MAX_LENGTH);
+
+        setsockopt(sock_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
+        while((recive_length = recv(sock_fd, recive_buffer, MAX_LENGTH, 0)) > 0){
+            printf("%s", recive_buffer);
+            memset(recive_buffer, 0, MAX_LENGTH);
+        }
+
+    }else{
+        printf("No such directory on server.\n");
+    }
 
     return 0;
 }
