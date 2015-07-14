@@ -166,9 +166,12 @@ int do_ls(char *path){
     if(is_dir(path)){
         dir = opendir(path);
         while((ptr = readdir(dir)) != NULL){
-            printf("%s\n", ptr->d_name);
+            if(ptr->d_name[0] == '.'){
+                continue;
+            }else{
+                printf("%s\n", ptr->d_name);
+            }
         }
-        printf("\n");
         closedir(dir);
     }else{
         printf("No such directory.\n");
