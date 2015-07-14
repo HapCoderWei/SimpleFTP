@@ -18,7 +18,10 @@ int main(int argc, char *argv[])
     s_addr.sin_port = htons(PORT);
     s_addr.sin_addr.s_addr = INADDR_ANY;
 
-    bind(socket_fd, (struct sockaddr *)&s_addr, s_addr_len);
+    if(bind(socket_fd, (struct sockaddr *)&s_addr, s_addr_len) < 0) {
+        perror("Bind error");
+        exit(1);
+    }
     listen(socket_fd, 10);          /* max request counts is 10 */
 
     for(;;) {
@@ -46,34 +49,36 @@ int main(int argc, char *argv[])
 void *th_func(void *arg)
 {
     int client_fd = (int)arg;
-    char ack_msg[] = "ACK";
+    int ret;
+    char *command_arg = NULL;
     char command_buf[MAX_LENGTH] = "";
-    char command_arg1[MAX_LENGTH] = "";
-    char command_arg2[MAX_LENGTH] = "";
 
-    pthread_detach(pthread_self()); /* pthread_join() */
+    pthread_detach(pthread_self()); /* as pthread_join() */
     for(;;) {
         recv(client_fd, command_buf, sizeof(command_buf), 0);
-        command_buf[sizeof(command_buf)-1] = '\0';
+        command_buf[strlen(command_buf)] = '\0';
 
         if(strncmp(command_buf, "GET", 3) == 0) {
-            send(client_fd, ack_msg, strlen(ack_msg), 0);
-            /* server only need to know source file path */
-            recv(client_fd, command_arg1, sizeof(command_arg1), 0);
-            do_put(command_arg1, command_arg2, client_fd);
+            command_arg = command_buf + 3;
+            ret = do_put(command_arg, NULL, client_fd);
+            switch(ret) {
+                case 0: printf("GET finished.\n"); break;
+                case 1: printf("GET: open file failed.\n"); break;
+                case 2: printf("GET: ready message failed.\n"); break;
+                default: break;
+            }
         }
         else if(strncmp(command_buf, "PUT", 3) == 0) {
-            recv(client_fd, command_arg1, sizeof(command_arg1), 0);
-            recv(client_fd, command_arg2, sizeof(command_arg1), 0);
-            do_get(command_arg1, command_arg2, client_fd);
+            command_arg = command_buf + 3;
+            do_get(command_arg, NULL, client_fd);
         }
-        else if(strncmp(command_buf, "CD", 3) == 0) {
-            recv(client_fd, command_arg1, sizeof(command_arg1), 0);
-            do_cd(command_arg1);
+        else if(strncmp(command_buf, "CD", 2) == 0) {
+            command_arg = command_buf + 2;
+            do_cd(command_arg);
         }
-        else if(strncmp(command_buf, "LS", 3) == 0) {
-            recv(client_fd, command_arg1, sizeof(command_arg1), 0);
-            do_ls(command_arg1);
+        else if(strncmp(command_buf, "LS", 2) == 0) {
+            command_arg = command_buf + 2;
+            do_ls(command_arg);
         }
         else if(strncmp(command_buf, "BYE", 3) == 0) {
             /* BYE BYE */
@@ -81,7 +86,5 @@ void *th_func(void *arg)
             pthread_exit(NULL);
         }
         bzero(command_buf,  sizeof(command_buf ));
-        bzero(command_arg1, sizeof(command_arg1));
-        bzero(command_arg2, sizeof(command_arg2));
     }
 }

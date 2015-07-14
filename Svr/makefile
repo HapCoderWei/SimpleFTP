@@ -1,5 +1,5 @@
-server: main.o command.o
-	gcc main.o command.o -o server -pthread
+Server: main.o command.o
+	gcc main.o command.o -o Server -lpthread
 main.o: main.c
 	gcc -c main.c
 command.o: command.c
