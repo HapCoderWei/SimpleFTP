@@ -29,8 +29,7 @@ void split_to_part(char *command_buffer, char **command_part, int *amount){
     }
     if(command_part[0] == NULL){
         command_part[0] = (char *)malloc(2);
-        strcpy(command_part[0], "A");
-        printf("is space:%s\n", command_part[0]);
+        strcpy(command_part[0], " ");
     }
 }
 
@@ -40,8 +39,12 @@ int split(command_line *command, char *command_buffer){
     }
 
     char *command_part[MAX_ARG];
+
     int amount;
 
+    for(int i = 0; i < MAX_ARG; ++i){
+        command_part[i] = NULL;
+    }
     command->name = NULL;
     for(int i = 0; i < MAX_ARG; ++i){
         command->argv[i] = NULL;
