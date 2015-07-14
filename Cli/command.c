@@ -142,10 +142,9 @@ int do_cd(char *path){
     }
 
     if(is_dir(path)){
-        if(chdir(path) == 0){
-
-        }else{
+        if(chdir(path) == -1){
             perror("Change Directory");
+            return -1;
         }
     }else{
         printf("No such Directory\n");
@@ -210,12 +209,11 @@ int do_serv_cd(char *path, int sock_fd){
 
     recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
 
-    if(strcmp(recive_buffer, "ACK") == 0){
-        send(sock_fd, "RDY", 3, 0);
-        recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
-        printf("Current Directory: %s\n", recive_buffer);
-    }else{
+    if(strcmp(recive_buffer, "ERR") == 0){
         printf("No such directory on server.\n");
+        return -1;
+    }else{
+        printf("Current directory: %s\n", recive_buffer);
     }
 
     return 0;
@@ -258,6 +256,7 @@ int do_serv_ls(char *path, int sock_fd){
 
     }else{
         printf("No such directory on server.\n");
+        return -1;
     }
 
     return 0;
@@ -266,6 +265,7 @@ int do_serv_ls(char *path, int sock_fd){
 int bye(int sock_fd){
     send(sock_fd, "BYE", 3, 0);
     close(sock_fd);
+    quit();
     return 0;
 }
 

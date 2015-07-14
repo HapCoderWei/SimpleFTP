@@ -67,7 +67,7 @@ int main(int argc, const char *argv[])
                     sock_fd = -1;
                 }
             }
-            else if(strcmp(command.name, "quit") == 0){
+            else if(strcmp(command.name, " ") == 0){
                 if(sock_fd == -1){
                     quit();
                 }else{
@@ -75,7 +75,6 @@ int main(int argc, const char *argv[])
                 }
             }
             else{
-                printf("Command name: %ssp\n", command.name);
                 printf("Command Invalid\n");
             }
 
