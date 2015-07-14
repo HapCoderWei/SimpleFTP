@@ -70,7 +70,14 @@ void *th_func(void *arg)
         }
         else if(strncmp(command_buf, "PUT", 3) == 0) {
             command_arg = command_buf + 3;
-            do_get(NULL, command_arg, client_fd);
+            ret = do_get(NULL, command_arg, client_fd);
+            switch(ret) {
+                case 0: printf("PUT finished.\n"); break;
+                case 1: printf("PUT: Open file failed.\n"); break;
+                case 2: printf("PUT: Receive READY message failed.\n"); break;
+                case 3: printf("Client open file failed.\n"); break;
+                default: break;
+            }
         }
         else if(strncmp(command_buf, "CD", 2) == 0) {
             command_arg = command_buf + 2;
