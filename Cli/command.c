@@ -205,7 +205,9 @@ int do_serv_cd(char *path, int sock_fd){
     recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
 
     if(strcmp(recive_buffer, "ACK") == 0){
-        printf("%s\n", path);
+        send(sock_fd, "RDY", 3, 0);
+        recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
+        printf("Current Directory: %s\n", recive_buffer);
     }else{
         printf("No such directory on server.\n");
     }
@@ -239,6 +241,8 @@ int do_serv_ls(char *path, int sock_fd){
         memset(recive_buffer, 0, MAX_LENGTH);
 
         setsockopt(sock_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
+        send(sock_fd, "RDY", 3, 0);
 
         while((recive_length = recv(sock_fd, recive_buffer, MAX_LENGTH, 0)) > 0){
             printf("%s", recive_buffer);
