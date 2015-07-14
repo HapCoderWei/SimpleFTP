@@ -27,6 +27,11 @@ void split_to_part(char *command_buffer, char **command_part, int *amount){
 
         ++command_pointer;
     }
+    if(command_part[0] == NULL){
+        command_part[0] = (char *)malloc(2);
+        strcpy(command_part[0], "A");
+        printf("is space:%s\n", command_part[0]);
+    }
 }
 
 int split(command_line *command, char *command_buffer){

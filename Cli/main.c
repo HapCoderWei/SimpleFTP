@@ -75,7 +75,7 @@ int main(int argc, const char *argv[])
                 }
             }
             else{
-                sleep(1);
+                printf("Command name: %ssp\n", command.name);
                 printf("Command Invalid\n");
             }
 
@@ -91,7 +91,7 @@ int main(int argc, const char *argv[])
                 }
             }
        }
-
+        printf("\n");
 
         memset(command_buffer, '\0', COMMAND_LINE);
     }

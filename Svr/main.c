@@ -85,11 +85,19 @@ void *th_func(void *arg)
         }
         else if(strncmp(command_buf, "LS", 2) == 0) {
             command_arg = command_buf + 2;
-            do_ls(command_arg);
+            ret = do_ls(command_arg, client_fd);
+            switch(ret) {
+                case 0: printf("LS finished.\n"); break;
+                case 1: printf("LS: PATH is not a dictionary.\n"); break;
+                case 2: printf("LS: Receive READY message failed.\n"); break;
+                default: break;
+            }
         }
         else if(strncmp(command_buf, "BYE", 3) == 0) {
             /* BYE BYE */
+            send(client_fd, "OK", 2, 0);
             close(client_fd);
+            printf("Connection disconnect.\n");
             pthread_exit(NULL);
         }
         bzero(command_buf,  sizeof(command_buf ));
