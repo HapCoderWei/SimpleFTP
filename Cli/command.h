@@ -7,6 +7,7 @@ int do_get(const char *src, const char *dst, int sock_fd);
 int do_put(const char *src, const char *dst, int sock_fd);
 int do_cd(char *path);
 int do_ls(char *path);
+void do_show();
 int do_serv_cd(char *path, int sock_fd);
 int do_serv_ls(char *path, int sock_fd);
 int bye(int sock_fd);

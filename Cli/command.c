@@ -135,9 +135,6 @@ int do_put(const char *src, const char *dst, int sock_fd){
 }
 
 int do_cd(char *path){
-    char current_dir[MAX_LENGTH];
-    getcwd(current_dir, MAX_LENGTH);
-    printf("%s \n", current_dir);
     return 0;
 }
 
@@ -164,6 +161,12 @@ int do_ls(char *path){
 
 
     return 0;
+}
+
+void do_show(){
+    char current_dir[MAX_LENGTH];
+    getcwd(current_dir, MAX_LENGTH);
+    printf("%s \n", current_dir);
 }
 
 int do_serv_cd(char *path, int sock_fd){

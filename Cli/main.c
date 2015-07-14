@@ -28,6 +28,9 @@ int main(int argc, const char *argv[])
             else if(strcmp(command.name, "ls") == 0){
                 do_ls(command.argv[0]);
             }
+            else if(strcmp(command.name, "show") == 0){
+                do_show();
+            }
             else if(strcmp(command.name, "get") == 0){
                 if(sock_fd == -1){
                     printf("Please connect to a server\n");
