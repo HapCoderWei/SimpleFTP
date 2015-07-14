@@ -49,14 +49,14 @@ int main(int argc, char *argv[])
 void *th_func(void *arg)
 {
     int client_fd = (int)arg;
-    int ret;
+    int ret, recv_len;
     char *command_arg = NULL;
     char command_buf[MAX_LENGTH] = "";
 
     pthread_detach(pthread_self()); /* as pthread_join() */
     for(;;) {
-        recv(client_fd, command_buf, sizeof(command_buf), 0);
-        command_buf[strlen(command_buf)] = '\0';
+        recv_len = recv(client_fd, command_buf, sizeof(command_buf), 0);
+        command_buf[recv_len] = '\0';
 
         if(strncmp(command_buf, "GET", 3) == 0) {
             command_arg = command_buf + 3;
@@ -81,7 +81,11 @@ void *th_func(void *arg)
         }
         else if(strncmp(command_buf, "CD", 2) == 0) {
             command_arg = command_buf + 2;
-            do_cd(command_arg);
+            ret = do_cd(command_arg, client_fd);
+            switch(ret) {
+                case 0: printf("CD finished.\n");
+                case 1: printf("CD: Change Directory failed.\n");
+            }
         }
         else if(strncmp(command_buf, "LS", 2) == 0) {
             command_arg = command_buf + 2;
@@ -100,6 +104,6 @@ void *th_func(void *arg)
             printf("Connection disconnect.\n");
             pthread_exit(NULL);
         }
-        bzero(command_buf,  sizeof(command_buf ));
+        bzero(command_buf,  sizeof(command_buf));
     }
 }

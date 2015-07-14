@@ -64,14 +64,31 @@ int do_put(const char *src, const char *dst, int sock_fd)
     }
     return 0;
 }
-int do_cd(char *path)
+/* Action fir command 'CD' */
+int do_cd(char *path, int sock_fd)
 {
+    const char ERR_MSG[] = "ERR";
+    /* const char ACK_MSG[] = "ACK"; */
+    /* const char RDY_MSG[] = "RDY"; */
+
+    int fd, recv_len;
+    DIR *dirp;
+    struct dirent *direntp;
+    char send_buf[1024] = "";
+    char ready_buf[5] = "";
+
+    if(chdir(path) != 0) {
+        send(sock_fd, ERR_MSG, sizeof(ERR_MSG), 0);
+        return 1;          /* value '1' is path is not a dictionary */
+    }
+    getcwd(send_buf, sizeof(send_buf));
+    send(sock_fd, send_buf, strlen(send_buf), 0);
     return 0;
 }
 /* Action for command 'LS' */
 int do_ls(char *path, int sock_fd)
 {
-    const char ERR_MSG[] = "Entry dictionary failed!";
+    const char ERR_MSG[] = "Entry directory failed!";
     const char ACK_MSG[] = "ACK";
     const char RDY_MSG[] = "RDY";
 
