@@ -168,6 +168,7 @@ int do_ls(char *path){
         while((ptr = readdir(dir)) != NULL){
             printf("%s\n", ptr->d_name);
         }
+        printf("\n");
         closedir(dir);
     }else{
         printf("No such directory.\n");
@@ -192,15 +193,17 @@ int do_serv_cd(char *path, int sock_fd){
     }
 
     char recive_buffer[MAX_LENGTH];
-    char request_buffer[MAX_LENGTH];
+    char *request_buffer;
+    int request_length;
 
     memset(recive_buffer, 0, MAX_LENGTH);
-    memset(request_buffer, 0, MAX_LENGTH);
 
-    strcpy(request_buffer, "CD");
+    request_length = strlen(path) + 2 + 1;
+    request_buffer = (char *)malloc(request_length);
+    strcpy(request_buffer, "CD");//Create request_buffer
     strcat(request_buffer, path);
-
-    send(sock_fd, request_buffer, strlen(request_buffer), 0);
+    send(sock_fd, request_buffer, request_length, 0); //Send CD + Path, then free request_buffer
+    free(request_buffer);
 
     recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
 
@@ -223,18 +226,19 @@ int do_serv_ls(char *path, int sock_fd){
     }
 
     char recive_buffer[MAX_LENGTH];
-    char request_buffer[MAX_LENGTH];
+    char *request_buffer;
+    int request_length;
     struct timeval timeout = {1,0};
     int recive_length;
 
-    memset(recive_buffer, 0, MAX_LENGTH);
-    memset(request_buffer, 0, MAX_LENGTH);
-
-    strcpy(request_buffer, "LS");
+    request_length = strlen(path) + 3 + 1;
+    request_buffer = (char *)malloc(request_length);
+    strcpy(request_buffer, "LS");//Create request_buffer
     strcat(request_buffer, path);
+    send(sock_fd, request_buffer, request_length, 0); //Send LS + Path, then free request_buffer
+    free(request_buffer);
 
-    send(sock_fd, request_buffer, strlen(request_buffer), 0);
-
+    memset(recive_buffer, 0, MAX_LENGTH);
     recv(sock_fd, recive_buffer, MAX_LENGTH, 0);
 
     if(strcmp(recive_buffer, "ACK") == 0){
