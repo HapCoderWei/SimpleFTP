@@ -70,7 +70,7 @@ void *th_func(void *arg)
         }
         else if(strncmp(command_buf, "PUT", 3) == 0) {
             command_arg = command_buf + 3;
-            do_get(command_arg, NULL, client_fd);
+            do_get(NULL, command_arg, client_fd);
         }
         else if(strncmp(command_buf, "CD", 2) == 0) {
             command_arg = command_buf + 2;
