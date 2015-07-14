@@ -43,7 +43,9 @@ int do_get(const char *src, const char *dst, int sock_fd){
     int request_length = strlen(src) + 3 + 1;
     char *request_buffer = (char *)malloc(request_length);
 
-    char recive_buffer[MAX_LENGTH] = "";
+    char recive_buffer[MAX_LENGTH];
+
+    memset(recive_buffer, 0, MAX_LENGTH);
 
     strcpy(request_buffer, "GET");
     strcat(request_buffer, src);

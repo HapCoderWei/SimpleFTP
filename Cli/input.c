@@ -37,6 +37,10 @@ int split(command_line *command, char *command_buffer){
     char *command_part[MAX_ARG];
     int amount;
 
+    command->name = NULL;
+    for(int i = 0; i < MAX_ARG; ++i){
+        command->argv[i] = NULL;
+    }
     split_to_part(command_buffer, command_part, &amount);
 
     command->name = command_part[0];
@@ -72,10 +76,10 @@ int get_dst_filename(const char *src, const char *dst, char *filename){
     return 0;
 }
 
-int is_dir(const char *dst){
-    struct stat dst_path_stat;
-    stat(dst, &dst_path_stat);
-    if((dst_path_stat.st_mode & S_IFMT) == S_IFDIR){
+int is_dir(const char *path){
+    struct stat path_stat;
+    stat(path, &path_stat);
+    if((path_stat.st_mode & S_IFMT) == S_IFDIR){
         return 1;
     }else{
         return 0;

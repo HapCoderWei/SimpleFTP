@@ -7,9 +7,9 @@ int main(int argc, const char *argv[])
     command_line command;
     int sock_fd = -1;
 
-    memset(command_buffer, '\0', COMMAND_LINE);
     while(1){
         printf("Input command: ");
+        memset(command_buffer, '\0', COMMAND_LINE);
         fgets(command_buffer, COMMAND_LINE, stdin);
         size_t command_len = strlen(command_buffer);
         command_buffer[command_len - 1] = '\0';
@@ -64,7 +64,18 @@ int main(int argc, const char *argv[])
                 }
             }
             else{
+                sleep(1);
                 printf("Command Invalid\n");
+            }
+
+            if(command.name){
+                free(command.name);
+            }
+            for(int i = 0; i < MAX_ARG; ++i){
+
+                if(command.argv[i]){
+                    free(command.argv[i]);
+                }
             }
        }
 
